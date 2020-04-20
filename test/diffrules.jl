@@ -1,45 +1,5 @@
 # adapted from ChainRulesTestUtils.rrule_test
 function rrule_test(
-    ::Val{:ChainRules},
-    f,
-    ȳ,
-    xx̄s::Tuple{Any,Any}...;
-    rtol = 1e-9,
-    atol = 1e-9,
-    fkwargs = NamedTuple(),
-    fdm = central_fdm(5, 1),
-    kwargs...,
-)
-    # Check correctness of evaluation.
-    xs, x̄s = collect(zip(xx̄s...))
-    y, pullback = rrule(f, xs...; fkwargs...)
-    @test f(xs...; fkwargs...) == y
-
-    @assert !(isa(ȳ, Thunk))
-    ∂s = pullback(ȳ)
-    ∂self = ∂s[1]
-    x̄s_ad = ∂s[2:end]
-    @test ∂self === NO_FIELDS
-
-    # Correctness testing via finite differencing.
-    return for (i, dx_ad) in enumerate(x̄s_ad)
-        if x̄s[i] === nothing
-            @test dx_ad isa DoesNotExist
-        else
-            x̄_fd = j′vp(
-                fdm,
-                x -> f(xs[1:(i - 1)]..., x, xs[(i + 1):end]...; fkwargs...),
-                ȳ,
-                xs[i],
-            )[1]
-            x̄_ad = unthunk(dx_ad)
-            @test isapprox(x̄_ad, x̄_fd; rtol = rtol, atol = atol, kwargs...)
-        end
-    end
-end
-
-# adapted from ChainRulesTestUtils.rrule_test
-function rrule_test(
     ::Val{:Zygote},
     f,
     ȳ,
@@ -74,7 +34,7 @@ function rrule_test(
 end
 
 @testset "autodiff rules" begin
-    @testset "$method" for method in (:ChainRules, :Zygote)
+    @testset "$method" for method in (:Zygote,)
         mval = Val(method)
         @testset "*(::AbstractQDHT, ::Array)" begin
             rng = MersenneTwister(86)

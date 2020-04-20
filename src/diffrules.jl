@@ -25,22 +25,6 @@ end
     return Y, Δ -> (nothing, _ldiv_back(Δ, Q, A))
 end
 
-function ChainRulesCore.rrule(::typeof(*), Q::AbstractQDHT, A)
-    Y = Q * A
-    function mul_pullback(ΔY)
-        return NO_FIELDS, DoesNotExist(), @thunk _mul_back(ΔY, Q, A)
-    end
-    return Y, mul_pullback
-end
-
-function ChainRulesCore.rrule(::typeof(\), Q::AbstractQDHT, A)
-    Y = Q \ A
-    function ldiv_pullback(ΔY)
-        return NO_FIELDS, DoesNotExist(), @thunk _ldiv_back(ΔY, Q, A)
-    end
-    return Y, ldiv_pullback
-end
-
 ## rules for dimdot, makes integrateR/K autodiffable
 function _dimdot_back(ΔΩ, v, A; dim = 1, dims = Tuple(collect(size(A))))
     T = Base.promote_eltype(v, ΔΩ)
@@ -56,12 +40,4 @@ _dimdot_back(ΔΩ, v, A::AbstractVector; dim = 1) = ΔΩ .* v
 
 @adjoint function dimdot(v, A; dim = 1)
     return dimdot(v, A; dim = dim), Δ -> (nothing, _dimdot_back(Δ, v, A; dim = dim))
-end
-
-function ChainRulesCore.rrule(::typeof(dimdot), v, A; dim = 1)
-    Ω = dimdot(v, A; dim = dim)
-    function dimdot_pullback(ΔΩ)
-        return NO_FIELDS, DoesNotExist(), @thunk _dimdot_back(ΔΩ, v, A; dim = dim)
-    end
-    return Ω, dimdot_pullback
 end
