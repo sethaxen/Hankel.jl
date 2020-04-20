@@ -15,6 +15,16 @@ function _ldiv_back(ΔY, Q, A)
     return ∂A
 end
 
+@adjoint function *(Q::AbstractQDHT, A)
+    Y = Q * A
+    return Y, Δ -> (nothing, _mul_back(Δ, Q, A))
+end
+
+@adjoint function \(Q::AbstractQDHT, A)
+    Y = Q \ A
+    return Y, Δ -> (nothing, _ldiv_back(Δ, Q, A))
+end
+
 function ChainRulesCore.rrule(::typeof(*), Q::AbstractQDHT, A)
     Y = Q * A
     function mul_pullback(ΔY)
@@ -43,6 +53,10 @@ function _dimdot_back(ΔΩ, v, A; dim = 1, dims = Tuple(collect(size(A))))
     return ∂A
 end
 _dimdot_back(ΔΩ, v, A::AbstractVector; dim = 1) = ΔΩ .* v
+
+@adjoint function dimdot(v, A; dim = 1)
+    return dimdot(v, A; dim = dim), Δ -> (nothing, _dimdot_back(Δ, v, A; dim = dim))
+end
 
 function ChainRulesCore.rrule(::typeof(dimdot), v, A; dim = 1)
     Ω = dimdot(v, A; dim = dim)
