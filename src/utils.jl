@@ -84,9 +84,7 @@ function dimdot(v, A; dim=1)
     return out
 end
 
-function dimdot(v, A::Vector; dim=1)
-    return dot(v, A)
-end
+dimdot(v, A::AbstractVector; dim=1) = dot(v, A)
 
 function dimdot!(out, v, A; dim=1)
     idxlo = CartesianIndices(size(A)[1:dim-1])
