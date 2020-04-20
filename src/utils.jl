@@ -100,10 +100,7 @@ function _dimdot!(out, v, A, idxlo, idxhi)
     end
 end
 
-function sphbesselj_scale(n::Integer)
-    ceven = √(π / 2)
-    return isodd(n) ? one(ceven) : ceven
-end
+sphbesselj_scale(n::Integer) = isodd(n) ? 1.0 : √(π / 2)
 
 """
     sphbesselj([p, ]n::Integer, x)
