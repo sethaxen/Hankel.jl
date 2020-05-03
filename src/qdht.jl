@@ -147,10 +147,7 @@ julia> q*A
  -6.07681871673291e-13
 ```
 """
-function *(Q::QDHT, A)
-    out = similar(A)
-    mul!(out, Q, A)
-end
+*(Q::QDHT, A) = _dot(Q.T, A, Q.scaleRK; dim=Q.dim)
 
 """
     \\(Q::QDHT, A)
@@ -165,10 +162,7 @@ julia> q \\ Ak ≈ A
 true
 ```
 """
-function \(Q::QDHT, A)
-    out = similar(A)
-    ldiv!(out, Q, A)
-end
+\(Q::QDHT, A) = _dot(Q.T, A, inv(Q.scaleRK); dim=Q.dim)
 
 """
     integrateR(A, Q::QDHT; dim=1)
