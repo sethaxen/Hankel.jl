@@ -108,10 +108,7 @@ julia> mul!(Y, q, A)
  -6.07681871673291e-13
 ```
 "
-function mul!(Y, Q::QDHT, A)
-    dot!(Y, Q.T, A, dim=Q.dim)
-    Y .*= Q.scaleRK
-end
+mul!(Y, Q::QDHT, A) = _dot!(Y, Q.T, A, Q.scaleRK; dim=Q.dim)
 
 "
     ldiv!(Y, Q::QDHT, A)
@@ -128,10 +125,7 @@ julia> YY ≈ A
 true
 ```
 "
-function ldiv!(Y, Q::QDHT, A)
-    dot!(Y, Q.T, A, dim=Q.dim)
-    Y ./= Q.scaleRK
-end
+ldiv!(Y, Q::QDHT, A) = _dot!(Y, Q.T, A, inv(Q.scaleRK); dim=Q.dim)
 
 """
     *(Q::QDHT, A)
